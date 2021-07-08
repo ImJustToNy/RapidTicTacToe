@@ -1,31 +1,37 @@
 <template>
   <div id="app">
-    <h1>Your player number is {{ playerNumber }}</h1>
+    <div v-if="loading">
+      <h1>Loading...</h1>
+    </div>
 
-    <table v-show="!loading">
-      <tr
-          v-for="x in 3"
-          :key="x">
-        <td
-            v-for="y in 3"
-            :key="y"
-            :class="{ clickable: isMyTurn && board[x-1][y-1] === null }"
-            @click="placeFigure(x-1, y-1)">
-          <div
-              class="figure"
-              v-html="board[x-1][y-1]"
-          />
-        </td>
-      </tr>
-    </table>
+    <div v-if="!loading">
+      <h1>Your player number is {{ playerNumber }}</h1>
 
-    <h1 v-if="isMyTurn && !gameFinished">
-      Your turn!
-    </h1>
+      <table>
+        <tr
+            v-for="x in 3"
+            :key="x">
+          <td
+              v-for="y in 3"
+              :key="y"
+              :class="{ clickable: isMyTurn && board[x-1][y-1] === null }"
+              @click="placeFigure(x-1, y-1)">
+            <div
+                class="figure"
+                v-html="board[x-1][y-1]"
+            />
+          </td>
+        </tr>
+      </table>
 
-    <button v-if="gameFinished" @click="createNewGame">
-      Create new game.
-    </button>
+      <h1 v-if="isMyTurn && !gameFinished">
+        Your turn!
+      </h1>
+
+      <button v-if="gameFinished" @click="createNewGame">
+        Create new game.
+      </button>
+    </div>
   </div>
 </template>
 

@@ -30,8 +30,7 @@ router.post('/', async (req, res, next) => {
 
     res.json({
         'token': `${gameId}_${playerOneToken}`,
-        'secondPlayerToken': `${gameId}_${playerTwoToken}`,
-        'startingPlayer': startingPlayer,
+        'secondPlayerToken': `${gameId}_${playerTwoToken}`
     });
 })
 
@@ -98,6 +97,8 @@ router.post('/:game_token/figure', async (req, res, next) => {
 
         game.finished = true;
     } else if (flatBoard.filter(x => x).length === 8) {
+        await pusher.trigger(game_id, 'draw', {});
+
         game.finished = true;
     }
 

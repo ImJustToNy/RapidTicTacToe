@@ -54,49 +54,54 @@ export default {
   },
   mounted() {
     const gameToken = window.location.hash.substring(1);
-    const self = this;
+
+    window.onhashchange = () => {
+      this.loadGameFromHash();
+    };
 
     if (! gameToken) {
       this.createNewGame();
     } else {
-      this.$http.get(`/game/${gameToken}`)
-        .then(function ({ data }) {
-          self.board = data.board
-
-          self.finishLoading(gameToken, data.playerNumber, data.startingPlayer, data.finished)
-        })
+      this.loadGameFromHash(gameToken);
     }
   },
   methods: {
     createNewGame() {
-      const self = this;
-
       this.$http.post('/game')
           .then(function ({ data }) {
             window.location.hash = data.token
 
-            self.board = [
-              [null, null, null],
-              [null, null, null],
-              [null, null, null],
-            ];
-
-            self.finishLoading(data.token, 1, data.startingPlayer, false)
-
             prompt('Send this link to other player:', `${window.location.origin}#${data.secondPlayerToken}`)
           })
     },
-    finishLoading(gameToken, playerNumber, startingPlayer, finished) {
-      this.$pusher
-          .subscribe(gameToken.split('_')[0])
-          .bind('figurePlaced', this.fieldChange)
-          .bind('won', this.playerWon);
+    loadGameFromHash(gameToken = null) {
+      const self = this;
 
-      this.gameToken = gameToken;
-      this.playerNumber = playerNumber;
-      this.startingPlayer = startingPlayer;
-      this.loading = false;
-      this.gameFinished = finished;
+      if (! gameToken) {
+        gameToken = window.location.hash.substring(1);
+      }
+
+      // Unsubscribe old game
+      if (this.gameToken) {
+        this.$pusher.unsubscribe(this.gameToken)
+      }
+
+      this.$http.get(`/game/${gameToken}`)
+          .then(function ({ data }) {
+            self.board = data.board
+
+            self.$pusher
+                .subscribe(gameToken.split('_')[0])
+                .bind('figurePlaced', self.fieldChange)
+                .bind('won', self.playerWon)
+                .bind('draw', self.draw);
+
+            self.gameToken = gameToken;
+            self.playerNumber =  data.playerNumber;
+            self.startingPlayer = data.startingPlayer;
+            self.gameFinished = data.finished;
+            self.loading = false;
+          })
     },
     fieldChange(data) {
       let tempRow = this.board[data.x]
@@ -104,12 +109,6 @@ export default {
       tempRow[data.y] = data.figure
 
       this.$set(this.board, data.x, tempRow)
-
-      if (this.board.flat().filter(x => x).length === 9) {
-        alert('Draw!');
-
-        this.gameFinished = true;
-      }
     },
     placeFigure(x, y) {
       if (! this.isMyTurn || this.board[x][y] !== null) {
@@ -123,6 +122,11 @@ export default {
     },
     playerWon(data) {
       alert(`Player ${data.player} won!`);
+
+      this.gameFinished = true;
+    },
+    draw() {
+      alert('Draw!');
 
       this.gameFinished = true;
     }

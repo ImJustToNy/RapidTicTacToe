@@ -61,6 +61,10 @@ router.post('/:game_token/figure', async (req, res, next) => {
         return next(createError(404));
     }
 
+    if (game.board[req.body.x][req.body.y] !== null) {
+        return next(createError(400));
+    }
+
     const flatBoard = game.board.flat();
     const isSameAmountOfFigures =
         flatBoard.filter(figure => figure === 'X').length
@@ -79,8 +83,6 @@ router.post('/:game_token/figure', async (req, res, next) => {
 
     game.board[req.body.x][req.body.y] = figure;
 
-    await redis.set(game_id, JSON.stringify(game));
-
     await pusher.trigger(game_id, 'figurePlaced', {
         x: req.body.x,
         y: req.body.y,
@@ -93,7 +95,13 @@ router.post('/:game_token/figure', async (req, res, next) => {
         await pusher.trigger(game_id, 'won', {
            player: whoWon,
         });
+
+        game.finished = true;
+    } else if (flatBoard.length === 9) {
+        game.finished = true;
     }
+
+    await redis.set(game_id, JSON.stringify(game));
 
     res.send();
 });

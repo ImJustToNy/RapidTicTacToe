@@ -4,7 +4,7 @@
       <h1>Loading...</h1>
     </div>
 
-    <div v-if="!loading">
+    <div v-else>
       <h1>Your player number is {{ playerNumber }}</h1>
 
       <table>
@@ -104,6 +104,12 @@ export default {
       tempRow[data.y] = data.figure
 
       this.$set(this.board, data.x, tempRow)
+
+      if (this.board.flat().length === 9) {
+        alert('Draw!');
+
+        this.gameFinished = true;
+      }
     },
     placeFigure(x, y) {
       if (! this.isMyTurn || this.board[x][y] !== null) {

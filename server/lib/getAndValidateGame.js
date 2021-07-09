@@ -6,7 +6,7 @@ module.exports = async (game_token) => {
     const result = JSON.parse(await redis.get(game_id));
 
     if (result.playerOneToken !== player_token && result.playerTwoToken !== player_token) {
-        return false
+        return false;
     }
 
     return result;

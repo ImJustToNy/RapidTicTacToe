@@ -105,7 +105,7 @@ export default {
 
       this.$set(this.board, data.x, tempRow)
 
-      if (this.board.flat().length === 9) {
+      if (this.board.flat().filter(x => x).length === 9) {
         alert('Draw!');
 
         this.gameFinished = true;

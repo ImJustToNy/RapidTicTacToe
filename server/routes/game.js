@@ -97,7 +97,7 @@ router.post('/:game_token/figure', async (req, res, next) => {
         });
 
         game.finished = true;
-    } else if (flatBoard.length === 9) {
+    } else if (flatBoard.filter(x => x).length === 8) {
         game.finished = true;
     }
 

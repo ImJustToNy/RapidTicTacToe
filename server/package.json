@@ -2,6 +2,9 @@
   "name": "rapidtictactoeserver",
   "private": true,
   "version": "1.0.0",
+  "scripts": {
+    "serve": "nodemon index.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
@@ -10,5 +13,8 @@
     "morgan": "^1.10.0",
     "pusher": "^5.0.0",
     "randomstring": "^1.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }

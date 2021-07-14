@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
             [null, null, null],
         ],
         finished: false,
-    }))
+    }), 'EX', 86400) // Game should expire in 1 day
 
     res.json({
         'token': `${gameId}_${playerOneToken}`,
@@ -102,7 +102,7 @@ router.post('/:game_token/figure', async (req, res, next) => {
         game.finished = true;
     }
 
-    await redis.set(game_id, JSON.stringify(game));
+    await redis.set(game_id, JSON.stringify(game), 'EX', 86400);
 
     res.send();
 });

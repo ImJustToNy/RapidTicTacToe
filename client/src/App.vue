@@ -68,15 +68,13 @@ export default {
   methods: {
     createNewGame() {
       this.$http.post('/game')
-          .then(function ({ data }) {
+          .then(({ data }) => {
             window.location.hash = data.token
 
             prompt('Send this link to other player:', `${window.location.origin}#${data.secondPlayerToken}`)
           })
     },
     loadGameFromHash(gameToken = null) {
-      const self = this;
-
       if (! gameToken) {
         gameToken = window.location.hash.substring(1);
       }
@@ -87,20 +85,20 @@ export default {
       }
 
       this.$http.get(`/game/${gameToken}`)
-          .then(function ({ data }) {
-            self.board = data.board
+          .then(({ data }) => {
+            this.board = data.board
 
-            self.$pusher
+            this.$pusher
                 .subscribe(gameToken.split('_')[0])
-                .bind('figurePlaced', self.fieldChange)
-                .bind('won', self.playerWon)
-                .bind('draw', self.draw);
+                .bind('figurePlaced', this.fieldChange)
+                .bind('won', this.playerWon)
+                .bind('draw', this.draw);
 
-            self.gameToken = gameToken;
-            self.playerNumber =  data.playerNumber;
-            self.startingPlayer = data.startingPlayer;
-            self.gameFinished = data.finished;
-            self.loading = false;
+            this.gameToken = gameToken;
+            this.playerNumber =  data.playerNumber;
+            this.startingPlayer = data.startingPlayer;
+            this.gameFinished = data.finished;
+            this.loading = false;
           })
     },
     fieldChange(data) {
